@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>KUYA Eagle Member Business Directory</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div class="hero__content">
+          <div class="badge">KUYA Eagle Member Network</div>
+          <h1>Business Directory</h1>
+          <p>
+            A community directory where KUYA (Eagle Member) entrepreneurs can register their
+            businesses and be discovered by category, location, and service.
+          </p>
+          <div class="hero__stats" id="stats"></div>
+        </div>
+        <div class="hero__panel">
+          <div class="panel__title">Quick Start</div>
+          <ul class="panel__list">
+            <li>Register your business below.</li>
+            <li>Pick a category for easy discovery.</li>
+            <li>Share contact details so members can reach you.</li>
+          </ul>
+        </div>
+      </header>
+
+      <main>
+        <section class="card" id="register">
+          <div class="card__header">
+            <div>
+              <h2>Register a Business</h2>
+              <p>Only KUYA Eagle Members can register. Listings publish instantly.</p>
+            </div>
+            <span class="pill">Eagle Member</span>
+          </div>
+          <form id="businessForm" class="form">
+            <div class="form__row">
+              <label>
+                Business Name
+                <input name="name" type="text" placeholder="Maharlika Seaside Resort" required />
+              </label>
+              <label>
+                Owner (KUYA Member)
+                <input name="owner" type="text" placeholder="Juan Dela Cruz" required />
+              </label>
+            </div>
+            <div class="form__row">
+              <label>
+                Category
+                <select name="category" id="categorySelect" required>
+                  <option value="">Select a category</option>
+                </select>
+              </label>
+              <label>
+                If other, specify
+                <input name="customCategory" type="text" placeholder="Event Services" />
+              </label>
+            </div>
+            <div class="form__row">
+              <label>
+                Location / Address
+                <input name="location" type="text" placeholder="Panglao, Bohol" required />
+              </label>
+              <label>
+                Contact Person
+                <input name="contact" type="text" placeholder="Maria Santos" required />
+              </label>
+            </div>
+            <div class="form__row">
+              <label>
+                Phone
+                <input name="phone" type="tel" placeholder="+63 9xx xxx xxxx" />
+              </label>
+              <label>
+                Email
+                <input name="email" type="email" placeholder="hello@business.com" />
+              </label>
+            </div>
+            <div class="form__row">
+              <label>
+                Website / Social Link
+                <input name="website" type="url" placeholder="https://" />
+              </label>
+              <label>
+                Operating Hours
+                <input name="hours" type="text" placeholder="Daily 9:00 AM - 8:00 PM" />
+              </label>
+            </div>
+            <label class="form__full">
+              Short Description
+              <textarea
+                name="description"
+                rows="3"
+                placeholder="Highlight your main services and what makes your business unique."
+              ></textarea>
+            </label>
+            <div class="form__actions">
+              <button type="submit" class="btn primary">Add to Directory</button>
+              <button type="reset" class="btn ghost">Clear Form</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="directory">
+          <div class="directory__controls">
+            <div>
+              <h2>Browse the Directory</h2>
+              <p>Search by business name, location, or category.</p>
+            </div>
+            <div class="directory__search">
+              <input id="searchInput" type="search" placeholder="Search businesses" />
+              <select id="filterSelect">
+                <option value="all">All Categories</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="category-strip" id="categoryStrip"></div>
+
+          <div class="directory__grid" id="directoryGrid"></div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div>
+          Built for KUYA Eagle Members. Keep listings accurate and updated for community trust.
+        </div>
+        <button id="resetData" class="btn ghost">Reset Sample Data</button>
+      </footer>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
