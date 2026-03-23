@@ -9,7 +9,8 @@ import {
   query,
   serverTimestamp,
 } from "firebase/firestore";
-import { db, firebaseReady } from "../lib/firebase";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { db, firebaseReady, storage } from "../lib/firebase";
 
 const defaultCategories = [
   "Resorts",
@@ -27,6 +28,8 @@ const defaultCategories = [
 ];
 
 const normalizeCategory = (value) => value.trim().replace(/\s+/g, " ");
+const MAX_PHOTOS = 5;
+const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
 
 export default function Home() {
   const [businesses, setBusinesses] = useState([]);
@@ -96,7 +99,6 @@ export default function Home() {
             business.category,
             business.location,
             business.owner,
-            business.description,
           ]
             .filter(Boolean)
             .some((value) => value.toLowerCase().includes(term))
@@ -137,24 +139,67 @@ export default function Home() {
 
     if (!category) return;
 
-    const value = (key) => String(formData.get(key) || "").trim();
+    const files = formData
+      .getAll("photos")
+      .filter(
+        (file) =>
+          file &&
+          typeof file === "object" &&
+          "size" in file &&
+          "name" in file &&
+          file.size > 0
+      );
 
-    const newBusiness = {
-      name: value("name"),
-      owner: value("owner"),
-      category,
-      location: value("location"),
-      contact: value("contact"),
-      phone: value("phone"),
-      email: value("email"),
-      website: value("website"),
-      hours: value("hours"),
-      description: value("description"),
-      createdAt: serverTimestamp(),
-    };
+    if (files.length > MAX_PHOTOS) {
+      setErrorMessage(`Please upload up to ${MAX_PHOTOS} photos only.`);
+      return;
+    }
+
+    const oversizedFile = files.find((file) => file.size > MAX_PHOTO_SIZE);
+    if (oversizedFile) {
+      setErrorMessage("Each photo must be 5MB or less.");
+      return;
+    }
+
+    if (files.length > 0 && !storage) {
+      setErrorMessage("Firebase Storage is not configured for photo uploads.");
+      return;
+    }
+
+    const value = (key) => String(formData.get(key) || "").trim();
 
     setSubmitting(true);
     try {
+      let photoUrls = [];
+      if (files.length > 0 && storage) {
+        const timestamp = Date.now();
+        photoUrls = await Promise.all(
+          files.map(async (file, index) => {
+            const safeName = file.name.replace(/\s+/g, "-");
+            const storageRef = ref(
+              storage,
+              `businesses/${timestamp}-${index}-${safeName}`
+            );
+            await uploadBytes(storageRef, file);
+            return getDownloadURL(storageRef);
+          })
+        );
+      }
+
+      const newBusiness = {
+        name: value("name"),
+        owner: value("owner"),
+        category,
+        location: value("location"),
+        contact: value("contact"),
+        phone: value("phone"),
+        email: value("email"),
+        website: value("website"),
+        hours: value("hours"),
+        photos: photoUrls,
+        createdAt: serverTimestamp(),
+      };
+
       await addDoc(collection(db, "businesses"), newBusiness);
       event.currentTarget.reset();
     } catch (error) {
@@ -273,12 +318,17 @@ export default function Home() {
               </label>
             </div>
             <label className="form__full">
-              Short Description
-              <textarea
-                name="description"
-                rows={3}
-                placeholder="Highlight your main services and what makes your business unique."
+              Business Photos
+              <input
+                name="photos"
+                type="file"
+                accept="image/*"
+                multiple
+                disabled={submitting}
               />
+              <span className="helper">
+                Upload up to {MAX_PHOTOS} photos (max 5MB each).
+              </span>
             </label>
             <div className="form__actions">
               <button type="submit" className="btn primary" disabled={submitting}>
@@ -372,7 +422,23 @@ export default function Home() {
                         {business.email ? <span>Email: {business.email}</span> : null}
                         {business.hours ? <span>Hours: {business.hours}</span> : null}
                       </div>
-                      {business.description ? <p>{business.description}</p> : null}
+                      {business.photos?.length ? (
+                        <div className="photo-grid">
+                          {business.photos.slice(0, 6).map((photo, index) => {
+                            const url =
+                              typeof photo === "string" ? photo : photo?.url;
+                            if (!url) return null;
+                            return (
+                              <img
+                                key={`${business.id}-photo-${index}`}
+                                src={url}
+                                alt={`${business.name} photo ${index + 1}`}
+                                loading="lazy"
+                              />
+                            );
+                          })}
+                        </div>
+                      ) : null}
                       <div className="business-card__tags">
                         <span className="tag">Eagle Member</span>
                         {business.website ? (

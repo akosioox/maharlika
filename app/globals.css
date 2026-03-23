@@ -194,6 +194,11 @@ label {
   font-size: 0.95rem;
 }
 
+.helper {
+  font-size: 0.82rem;
+  color: var(--slate);
+}
+
 input,
 select,
 textarea {
@@ -202,6 +207,21 @@ textarea {
   padding: 12px 14px;
   font-size: 0.95rem;
   background: #fdfbf8;
+}
+
+input[type="file"] {
+  padding: 10px;
+}
+
+input[type="file"]::file-selector-button {
+  border: none;
+  background: rgba(47, 127, 122, 0.15);
+  color: var(--teal);
+  padding: 8px 14px;
+  border-radius: 12px;
+  margin-right: 12px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 input:focus,
@@ -320,6 +340,20 @@ textarea:focus {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.photo-grid img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid rgba(90, 90, 87, 0.12);
 }
 
 .tag {
