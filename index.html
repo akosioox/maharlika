@@ -3,142 +3,275 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>KUYA Eagle Member Business Directory</title>
+    <title>Aurora Maharlikan Eagles Club</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
   </head>
-  <body>
-    <div class="page">
-      <header class="hero">
-        <div class="hero__content">
-          <div class="badge">KUYA Eagle Member Network</div>
-          <h1>Business Directory</h1>
-          <p>
-            A community directory where KUYA (Eagle Member) entrepreneurs can register their
-            businesses and be discovered by category, location, and service.
+  <body class="bg-white text-gray-900">
+    <nav class="sticky top-0 z-50 bg-white border-b border-gray-200">
+      <div class="max-w-6xl mx-auto px-4">
+        <div class="flex flex-wrap items-center justify-between gap-4 py-4">
+          <div class="flex items-center gap-3">
+            <img
+              src="public/eagle-logo.png"
+              alt="Aurora Maharlikan Eagles Club logo"
+              class="h-11 w-11 rounded-full object-cover border border-teal-800"
+            />
+            <div>
+              <div class="font-bold">Aurora Maharlikan Eagles Club</div>
+              <div class="text-sm text-gray-500">Eastern Luzon Region 5</div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-6 text-sm font-medium text-gray-700">
+            <a href="about.html" class="hover:text-teal-800">About Us</a>
+            <a href="events.html" class="hover:text-teal-800">Events</a>
+            <a href="directory.html" class="hover:text-teal-800">Business Directory</a>
+            <a href="nest.html" class="hover:text-teal-800">Eagles' Nest Online</a>
+            <a href="contact.html" class="hover:text-teal-800">Contact</a>
+          </div>
+
+          <a
+            href="contact.html"
+            class="inline-flex items-center justify-center rounded-full bg-teal-700 px-5 py-2 text-sm font-semibold text-white hover:bg-teal-800"
+          >
+            Become an Eagle
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <section class="bg-teal-900 text-white">
+      <div class="max-w-6xl mx-auto px-4 py-16">
+        <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
+          <div>
+            <div class="text-sm font-semibold uppercase tracking-[0.2em] text-teal-300">
+              SERVICE THROUGH STRONG BROTHERHOOD
+            </div>
+            <h1 class="mt-4 text-3xl font-bold sm:text-4xl lg:text-5xl">
+              Building Aurora Through Service, Leadership, and Unity
+            </h1>
+            <p class="mt-4 text-lg text-teal-100">
+              The Aurora Maharlikan Eagles Club is a fraternal socio-civic organization
+              advancing community projects, mentoring leaders, and empowering Maharlikan
+              entrepreneurs across Eastern Luzon Region 5.
+            </p>
+            <div class="mt-6 flex flex-wrap gap-4">
+              <a
+                href="contact.html"
+                class="inline-flex items-center justify-center rounded-full bg-white px-5 py-2 text-sm font-semibold text-teal-900"
+              >
+                Become an Eagle
+              </a>
+              <a
+                href="directory.html"
+                class="inline-flex items-center justify-center rounded-full border border-teal-300 px-5 py-2 text-sm font-semibold text-teal-100"
+              >
+                Explore the Directory
+              </a>
+            </div>
+          </div>
+          <div class="rounded-2xl bg-white p-6 text-gray-900 shadow-lg">
+            <div class="text-sm font-semibold text-teal-700">Upcoming Highlight</div>
+            <h3 class="mt-3 text-xl font-semibold">2026 Aurora Eagles Regional Assembly</h3>
+            <p class="mt-1 text-sm text-gray-500">Baler, Aurora - Date to be announced</p>
+            <video
+              class="mt-4 h-40 w-full rounded-xl bg-gray-100 object-cover"
+              autoplay
+              muted
+              loop
+              playsinline
+            >
+            <source src="club-video.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            <a href="events.html" class="mt-4 inline-flex text-sm font-semibold text-teal-700">
+              View all events
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white">
+      <div class="max-w-6xl mx-auto px-4 py-16">
+        <video
+          class="w-full rounded-2xl shadow-lg"
+          autoplay
+          muted
+          loop
+          playsinline
+        >
+              <source src="club-video.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </section>
+
+    <section class="bg-gray-50">
+      <div class="max-w-6xl mx-auto px-4 py-16">
+        <div class="max-w-3xl">
+          <h2 class="text-2xl font-semibold">Brotherhood With Purpose</h2>
+          <p class="mt-3 text-gray-600">
+            The Fraternal Order of Eagles traces its roots to a historic gathering in May
+            1979 at Aberdeen Court on Quezon Avenue, Quezon City. What began as a small
+            circle of civic-minded leaders grew into an indigenous service organization
+            founded on strong brotherhood, committed to humanitarian service and unity.
           </p>
-          <div class="hero__stats" id="stats"></div>
         </div>
-        <div class="hero__panel">
-          <div class="panel__title">Quick Start</div>
-          <ul class="panel__list">
-            <li>Register your business below.</li>
-            <li>Pick a category for easy discovery.</li>
-            <li>Share contact details so members can reach you.</li>
-          </ul>
-        </div>
-      </header>
-
-      <main>
-        <section class="card" id="register">
-          <div class="card__header">
-            <div>
-              <h2>Register a Business</h2>
-              <p>Only KUYA Eagle Members can register. Listings publish instantly.</p>
-            </div>
-            <span class="pill">Eagle Member</span>
+        <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="rounded-2xl bg-white p-6 shadow-sm">
+            <h3 class="text-lg font-semibold">Historic Roots</h3>
+            <p class="mt-2 text-sm text-gray-600">
+              Born from the 1979 rendezvous that inspired a new civic path.
+            </p>
           </div>
-          <form id="businessForm" class="form">
-            <div class="form__row">
-              <label>
-                Business Name
-                <input name="name" type="text" placeholder="Maharlika Seaside Resort" required />
-              </label>
-              <label>
-                Owner (KUYA Member)
-                <input name="owner" type="text" placeholder="Juan Dela Cruz" required />
-              </label>
-            </div>
-            <div class="form__row">
-              <label>
-                Category
-                <select name="category" id="categorySelect" required>
-                  <option value="">Select a category</option>
-                </select>
-              </label>
-              <label>
-                If other, specify
-                <input name="customCategory" type="text" placeholder="Event Services" />
-              </label>
-            </div>
-            <div class="form__row">
-              <label>
-                Location / Address
-                <input name="location" type="text" placeholder="Panglao, Bohol" required />
-              </label>
-              <label>
-                Contact Person
-                <input name="contact" type="text" placeholder="Maria Santos" required />
-              </label>
-            </div>
-            <div class="form__row">
-              <label>
-                Phone
-                <input name="phone" type="tel" placeholder="+63 9xx xxx xxxx" />
-              </label>
-              <label>
-                Email
-                <input name="email" type="email" placeholder="hello@business.com" />
-              </label>
-            </div>
-            <div class="form__row">
-              <label>
-                Website / Social Link
-                <input name="website" type="url" placeholder="https://" />
-              </label>
-              <label>
-                Operating Hours
-                <input name="hours" type="text" placeholder="Daily 9:00 AM - 8:00 PM" />
-              </label>
-            </div>
-            <label class="form__full">
-              Short Description
-              <textarea
-                name="description"
-                rows="3"
-                placeholder="Highlight your main services and what makes your business unique."
-              ></textarea>
-            </label>
-            <div class="form__actions">
-              <button type="submit" class="btn primary">Add to Directory</button>
-              <button type="reset" class="btn ghost">Clear Form</button>
-            </div>
-          </form>
-        </section>
+          <div class="rounded-2xl bg-white p-6 shadow-sm">
+            <h3 class="text-lg font-semibold">The Philippine Eagle</h3>
+            <p class="mt-2 text-sm text-gray-600">
+              Named after a majestic bird symbolizing courage and foresight.
+            </p>
+          </div>
+          <div class="rounded-2xl bg-white p-6 shadow-sm">
+            <h3 class="text-lg font-semibold">Guiding Principle</h3>
+            <p class="mt-2 text-sm text-gray-600">
+              Service through strong brotherhood in every mission.
+            </p>
+          </div>
+          <div class="rounded-2xl bg-white p-6 shadow-sm">
+            <h3 class="text-lg font-semibold">Constitution &amp; By-Laws</h3>
+            <p class="mt-2 text-sm text-gray-600">
+              Governed by the Eagles Constitution and SEC-registered by-laws.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-        <section class="directory">
-          <div class="directory__controls">
-            <div>
-              <h2>Browse the Directory</h2>
-              <p>Search by business name, location, or category.</p>
+    <section class="bg-white">
+      <div class="max-w-6xl mx-auto px-4 py-16">
+        <div class="max-w-2xl">
+          <h2 class="text-2xl font-semibold">Upcoming Activities</h2>
+          <p class="mt-2 text-gray-600">
+            Stay updated with our assemblies, service caravans, and training events.
+          </p>
+        </div>
+        <div class="mt-8 space-y-4">
+          <div class="flex flex-wrap gap-4 rounded-2xl border border-gray-200 bg-white p-5">
+            <div
+              class="flex h-16 w-16 flex-col items-center justify-center rounded-xl bg-teal-100 text-teal-800 font-semibold"
+            >
+              <span class="text-xs">JUN</span>
+              <span class="text-lg">22</span>
             </div>
-            <div class="directory__search">
-              <input id="searchInput" type="search" placeholder="Search businesses" />
-              <select id="filterSelect">
-                <option value="all">All Categories</option>
-              </select>
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold">Maharlikan Service Caravan</h3>
+              <p class="mt-1 text-sm text-gray-600">
+                Community outreach and relief distribution across Aurora.
+              </p>
+              <span
+                class="mt-3 inline-flex rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700"
+              >
+                Baler, Aurora
+              </span>
             </div>
           </div>
-
-          <div class="category-strip" id="categoryStrip"></div>
-
-          <div class="directory__grid" id="directoryGrid"></div>
-        </section>
-      </main>
-
-      <footer class="footer">
-        <div>
-          Built for KUYA Eagle Members. Keep listings accurate and updated for community trust.
+          <div class="flex flex-wrap gap-4 rounded-2xl border border-gray-200 bg-white p-5">
+            <div
+              class="flex h-16 w-16 flex-col items-center justify-center rounded-xl bg-teal-100 text-teal-800 font-semibold"
+            >
+              <span class="text-xs">AUG</span>
+              <span class="text-lg">10</span>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold">Leadership &amp; Brotherhood Summit</h3>
+              <p class="mt-1 text-sm text-gray-600">
+                Workshops on leadership, civic engagement, and member development.
+              </p>
+              <span
+                class="mt-3 inline-flex rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700"
+              >
+                Eastern Luzon Region 5
+              </span>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-4 rounded-2xl border border-gray-200 bg-white p-5">
+            <div
+              class="flex h-16 w-16 flex-col items-center justify-center rounded-xl bg-teal-100 text-teal-800 font-semibold"
+            >
+              <span class="text-xs">OCT</span>
+              <span class="text-lg">05</span>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold">Business &amp; Livelihood Expo</h3>
+              <p class="mt-1 text-sm text-gray-600">
+                Showcase of Eagle-led enterprises and livelihood partners.
+              </p>
+              <span
+                class="mt-3 inline-flex rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700"
+              >
+                San Luis, Aurora
+              </span>
+            </div>
+          </div>
         </div>
-        <button id="resetData" class="btn ghost">Reset Sample Data</button>
-      </footer>
-    </div>
+      </div>
+    </section>
 
-    <script src="app.js"></script>
+    <section class="bg-teal-50">
+      <div class="max-w-6xl mx-auto px-4 py-16 text-center">
+        <h2 class="text-2xl font-semibold">Become Part of the Brotherhood</h2>
+        <p class="mt-3 text-gray-600">
+          Engage in service, grow your leadership, and build lifelong connections. Let's
+          make Aurora stronger together.
+        </p>
+        <div class="mt-6 flex flex-wrap justify-center gap-4">
+          <a
+            href="mailto:auroraeaglesclub@gmail.com"
+            class="inline-flex items-center justify-center rounded-full bg-teal-700 px-5 py-2 text-sm font-semibold text-white"
+          >
+            Contact Membership
+          </a>
+          <a
+            href="directory.html"
+            class="inline-flex items-center justify-center rounded-full border border-gray-200 bg-white px-5 py-2 text-sm font-semibold text-gray-700"
+          >
+            Visit Business Directory
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="bg-white border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-4 py-8 flex flex-wrap items-center justify-between gap-6">
+        <div class="flex items-center gap-3">
+          <img
+            src="public/eagle-logo.png"
+            alt="Philippine Eagles logo"
+            class="h-10 w-10 rounded-full object-cover border border-teal-800"
+          />
+          <div>
+            <div class="font-semibold">Aurora Maharlikan Eagles Club</div>
+            <div class="text-sm text-gray-600">
+              Eastern Luzon Region 5 - Mabuhay Ang May Pusong AGILA!
+            </div>
+          </div>
+        </div>
+        <div class="text-sm text-gray-600">
+          <div>auroraeaglesclub@gmail.com</div>
+          <div>+63 919 000 0000</div>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>
