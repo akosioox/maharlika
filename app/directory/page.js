@@ -10,18 +10,18 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  updateDoc,
 } from "firebase/firestore";
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
+  signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
 } from "firebase/auth";
-import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { auth, db, firebaseReady, storage } from "../../lib/firebase";
+import { auth, db, firebaseReady } from "../../lib/firebase";
 
 const defaultCategories = [
-  "Resorts",
   "Restaurants",
   "Cafes & Bakeries",
   "Hotels & Lodging",
@@ -36,8 +36,12 @@ const defaultCategories = [
 ];
 
 const normalizeCategory = (value) => value.trim().replace(/\s+/g, " ");
-const MAX_PHOTOS = 5;
-const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
+const categoryKey = (value) => normalizeCategory(String(value || "")).toLowerCase();
+const canonicalCategory = (value) => {
+  const key = categoryKey(value);
+  if (key === "resorts") return "Hotels & Lodging";
+  return normalizeCategory(value);
+};
 const adminEmailList = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ||
   process.env.NEXT_PUBLIC_ADMIN_EMAIL ||
   "")
@@ -55,6 +59,11 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [deletingId, setDeletingId] = useState("");
+  const [showRegister, setShowRegister] = useState(false);
+  const [editingBusiness, setEditingBusiness] = useState(null);
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     if (!firebaseReady || !db) {
@@ -102,21 +111,31 @@ export default function Home() {
     return () => unsubscribe();
   }, []);
 
-  const categories = useMemo(() => {
-    const set = new Set(defaultCategories);
-    businesses.forEach((business) => {
-      if (business.category) set.add(business.category);
+  const categoryOptions = useMemo(() => {
+    const map = new Map();
+    defaultCategories.forEach((category) => {
+      const canonical = canonicalCategory(category);
+      const key = categoryKey(canonical);
+      if (!map.has(key)) map.set(key, canonical);
     });
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
+    businesses.forEach((business) => {
+      if (!business.category) return;
+      const canonical = canonicalCategory(business.category);
+      const key = categoryKey(canonical);
+      if (!map.has(key)) map.set(key, canonical);
+    });
+    return Array.from(map.entries())
+      .map(([key, label]) => ({ key, label }))
+      .sort((a, b) => a.label.localeCompare(b.label));
   }, [businesses]);
 
   const stats = useMemo(
     () => [
       { label: "Listings", value: businesses.length },
-      { label: "Categories", value: categories.length },
+      { label: "Categories", value: categoryOptions.length },
       { label: "Eagle Members", value: businesses.length },
     ],
-    [businesses.length, categories.length]
+    [businesses.length, categoryOptions.length]
   );
 
   const filteredBusinesses = useMemo(() => {
@@ -133,15 +152,17 @@ export default function Home() {
             .some((value) => value.toLowerCase().includes(term))
         : true;
       const matchesCategory =
-        filterCategory === "all" || business.category === filterCategory;
+        filterCategory === "all" ||
+        categoryKey(canonicalCategory(business.category)) === filterCategory;
       return matchesTerm && matchesCategory;
     });
   }, [businesses, filterCategory, searchTerm]);
 
   const grouped = useMemo(() => {
     return filteredBusinesses.reduce((acc, business) => {
-      if (!acc[business.category]) acc[business.category] = [];
-      acc[business.category].push(business);
+      const key = categoryKey(canonicalCategory(business.category));
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(business);
       return acc;
     }, {});
   }, [filteredBusinesses]);
@@ -150,9 +171,15 @@ export default function Home() {
     return Object.keys(grouped).sort((a, b) => a.localeCompare(b));
   }, [grouped]);
 
+  const categoryLabelMap = useMemo(() => {
+    const map = new Map(categoryOptions.map((option) => [option.key, option.label]));
+    return map;
+  }, [categoryOptions]);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setErrorMessage("");
+    setSuccessMessage("");
 
     if (!firebaseReady || !db) {
       setErrorMessage(
@@ -168,57 +195,10 @@ export default function Home() {
 
     if (!category) return;
 
-    const files = formData
-      .getAll("photos")
-      .filter(
-        (file) =>
-          file &&
-          typeof file === "object" &&
-          "size" in file &&
-          "name" in file &&
-          file.size > 0
-      );
-
-    if (files.length > MAX_PHOTOS) {
-      setErrorMessage(`Please upload up to ${MAX_PHOTOS} photos only.`);
-      return;
-    }
-
-    const oversizedFile = files.find((file) => file.size > MAX_PHOTO_SIZE);
-    if (oversizedFile) {
-      setErrorMessage("Each photo must be 5MB or less.");
-      return;
-    }
-
-    if (files.length > 0 && !storage) {
-      setErrorMessage("Firebase Storage is not configured for photo uploads.");
-      return;
-    }
-
-    const value = (key) => String(formData.get(key) || "").trim();
+      const value = (key) => String(formData.get(key) || "").trim();
 
     setSubmitting(true);
     try {
-      let photoUrls = [];
-      let photoPaths = [];
-      if (files.length > 0 && storage) {
-        const timestamp = Date.now();
-        const uploads = await Promise.all(
-          files.map(async (file, index) => {
-            const safeName = file.name.replace(/\s+/g, "-");
-            const storageRef = ref(
-              storage,
-              `businesses/${timestamp}-${index}-${safeName}`
-            );
-            await uploadBytes(storageRef, file);
-            const url = await getDownloadURL(storageRef);
-            return { url, path: storageRef.fullPath };
-          })
-        );
-        photoUrls = uploads.map((upload) => upload.url);
-        photoPaths = uploads.map((upload) => upload.path);
-      }
-
       const newBusiness = {
         name: value("name"),
         owner: value("owner"),
@@ -229,8 +209,6 @@ export default function Home() {
         email: value("email"),
         website: value("website"),
         hours: value("hours"),
-        photos: photoUrls,
-        photoPaths,
         createdAt: serverTimestamp(),
       };
 
@@ -240,6 +218,7 @@ export default function Home() {
         setErrorMessage("Unable to save the listing. Please try again.");
       });
       event.currentTarget.reset();
+      setSuccessMessage("Your business has been registered.");
     } catch (error) {
       console.error(error);
       setErrorMessage("Unable to save the listing. Please try again.");
@@ -264,6 +243,18 @@ export default function Home() {
     }
   };
 
+  const handleEmailSignIn = async () => {
+    if (!auth) return;
+    setErrorMessage("");
+    try {
+      await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
+      setAdminPassword("");
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Unable to sign in. Please check your credentials.");
+    }
+  };
+
   const handleAdminSignOut = async () => {
     if (!auth) return;
     setErrorMessage("");
@@ -282,17 +273,50 @@ export default function Home() {
     setDeletingId(business.id);
     setErrorMessage("");
     try {
-      if (storage && Array.isArray(business.photoPaths) && business.photoPaths.length) {
-        await Promise.allSettled(
-          business.photoPaths.map((path) => deleteObject(ref(storage, path)))
-        );
-      }
       await deleteDoc(doc(db, "businesses", business.id));
     } catch (error) {
       console.error(error);
       setErrorMessage("Unable to delete the listing. Please try again.");
     } finally {
       setDeletingId("");
+    }
+  };
+
+  const handleUpdate = async (event) => {
+    event.preventDefault();
+    setErrorMessage("");
+    if (!db || !editingBusiness || !isAdmin) return;
+
+    const formData = new FormData(event.currentTarget);
+    const category = normalizeCategory(
+      String(formData.get("customCategory") || formData.get("category") || "")
+    );
+
+    if (!category) return;
+
+    const value = (key) => String(formData.get(key) || "").trim();
+
+    setSubmitting(true);
+    try {
+      await updateDoc(doc(db, "businesses", editingBusiness.id), {
+        name: value("name"),
+        owner: value("owner"),
+        category,
+        location: value("location"),
+        contact: value("contact"),
+        phone: value("phone"),
+        email: value("email"),
+        website: value("website"),
+        hours: value("hours"),
+        updatedAt: serverTimestamp(),
+      });
+
+      setEditingBusiness(null);
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Unable to update the listing. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -306,11 +330,11 @@ export default function Home() {
               src="/eagle-logo.png"
               alt="Philippine Eagles logo"
             />
-            <div className="badge">KUYA Eagle Member Network</div>
+            <div className="badge">Eagle Member Network</div>
           </div>
           <h1>Business Directory</h1>
           <p>
-            A community directory where KUYA (Eagle Member) entrepreneurs can
+            A community directory where an Eagle Member entrepreneurs can
             register their businesses and be discovered by category, location,
             and service.
           </p>
@@ -330,124 +354,17 @@ export default function Home() {
             <li>Pick a category for easy discovery.</li>
             <li>Share contact details so members can reach you.</li>
           </ul>
+          <button
+            type="button"
+            className="btn primary"
+            onClick={() => setShowRegister(true)}
+          >
+            Register a Business
+          </button>
         </div>
       </header>
 
       <main>
-        <section className="card" id="register">
-          <div className="card__header">
-            <div>
-              <h2>Register a Business</h2>
-              <p>Only KUYA Eagle Members can register. Listings publish instantly.</p>
-            </div>
-            <span className="pill">Eagle Member</span>
-          </div>
-          <div className="admin-bar">
-            <div>
-              <strong>Admin:</strong>{" "}
-              {user?.email ? <span>{user.email}</span> : <span>Not signed in</span>}
-              {!adminEmailList.length ? (
-                <span className="admin-note">Set `NEXT_PUBLIC_ADMIN_EMAILS`.</span>
-              ) : null}
-            </div>
-            {user ? (
-              <button type="button" className="btn ghost" onClick={handleAdminSignOut}>
-                Sign out
-              </button>
-            ) : (
-              <button type="button" className="btn ghost" onClick={handleAdminSignIn}>
-                Admin sign in
-              </button>
-            )}
-          </div>
-          <form className="form" onSubmit={handleSubmit}>
-            <div className="form__row">
-              <label>
-                Business Name
-                <input
-                  name="name"
-                  type="text"
-                  placeholder="Maharlika Seaside Resort"
-                  required
-                />
-              </label>
-              <label>
-                Owner (KUYA Member)
-                <input name="owner" type="text" placeholder="Juan Dela Cruz" required />
-              </label>
-            </div>
-            <div className="form__row">
-              <label>
-                Category
-                <select name="category" required>
-                  <option value="">Select a category</option>
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                If other, specify
-                <input name="customCategory" type="text" placeholder="Event Services" />
-              </label>
-            </div>
-            <div className="form__row">
-              <label>
-                Location / Address
-                <input name="location" type="text" placeholder="Panglao, Bohol" required />
-              </label>
-              <label>
-                Contact Person
-                <input name="contact" type="text" placeholder="Maria Santos" required />
-              </label>
-            </div>
-            <div className="form__row">
-              <label>
-                Phone
-                <input name="phone" type="tel" placeholder="+63 9xx xxx xxxx" />
-              </label>
-              <label>
-                Email
-                <input name="email" type="email" placeholder="hello@business.com" />
-              </label>
-            </div>
-            <div className="form__row">
-              <label>
-                Website / Social Link
-                <input name="website" type="url" placeholder="https://" />
-              </label>
-              <label>
-                Operating Hours
-                <input name="hours" type="text" placeholder="Daily 9:00 AM - 8:00 PM" />
-              </label>
-            </div>
-            <label className="form__full">
-              Business Photos
-              <input
-                name="photos"
-                type="file"
-                accept="image/*"
-                multiple
-                disabled={submitting}
-              />
-              <span className="helper">
-                Upload up to {MAX_PHOTOS} photos (max 5MB each).
-              </span>
-            </label>
-            <div className="form__actions">
-              <button type="submit" className="btn primary" disabled={submitting}>
-                {submitting ? "Saving..." : "Add to Directory"}
-              </button>
-              <button type="reset" className="btn ghost" disabled={submitting}>
-                Clear Form
-              </button>
-            </div>
-            {errorMessage ? <div className="empty">{errorMessage}</div> : null}
-          </form>
-        </section>
-
         <section className="directory">
           <div className="directory__controls">
             <div>
@@ -466,9 +383,9 @@ export default function Home() {
                 onChange={(event) => setFilterCategory(event.target.value)}
               >
                 <option value="all">All Categories</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
+                {categoryOptions.map((category) => (
+                  <option key={category.key} value={category.key}>
+                    {category.label}
                   </option>
                 ))}
               </select>
@@ -476,26 +393,6 @@ export default function Home() {
                 Clear Filters
               </button>
             </div>
-          </div>
-
-          <div className="category-strip">
-            <button
-              type="button"
-              className={`category-chip ${filterCategory === "all" ? "active" : ""}`}
-              onClick={() => setFilterCategory("all")}
-            >
-              All
-            </button>
-            {categories.map((category) => (
-              <button
-                key={category}
-                type="button"
-                className={`category-chip ${filterCategory === category ? "active" : ""}`}
-                onClick={() => setFilterCategory(category)}
-              >
-                {category}
-              </button>
-            ))}
           </div>
 
           <div className="directory__grid">
@@ -509,7 +406,9 @@ export default function Home() {
               groupedCategories.map((category) => (
                 <Fragment key={category}>
                   {filterCategory === "all" ? (
-                    <div className="group-title">{category}</div>
+                    <div className="group-title">
+                      {categoryLabelMap.get(category) || "Other"}
+                    </div>
                   ) : null}
                   {grouped[category].map((business, index) => (
                     <div
@@ -520,7 +419,10 @@ export default function Home() {
                       <div>
                         <h3>{business.name}</h3>
                         <div className="business-card__meta">
-                          <span>{business.category}</span>
+                          <span>
+                            {categoryLabelMap.get(categoryKey(canonicalCategory(business.category))) ||
+                              canonicalCategory(business.category || "")}
+                          </span>
                           <span>{business.location}</span>
                         </div>
                       </div>
@@ -554,14 +456,23 @@ export default function Home() {
                           <span className="tag">{business.website}</span>
                         ) : null}
                         {isAdmin ? (
-                          <button
-                            type="button"
-                            className="btn danger small"
-                            onClick={() => handleDelete(business)}
-                            disabled={deletingId === business.id}
-                          >
-                            {deletingId === business.id ? "Deleting..." : "Delete"}
-                          </button>
+                          <>
+                            <button
+                              type="button"
+                              className="btn ghost small"
+                              onClick={() => setEditingBusiness(business)}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              className="btn danger small"
+                              onClick={() => handleDelete(business)}
+                              disabled={deletingId === business.id}
+                            >
+                              {deletingId === business.id ? "Deleting..." : "Delete"}
+                            </button>
+                          </>
                         ) : null}
                       </div>
                     </div>
@@ -571,6 +482,284 @@ export default function Home() {
             )}
           </div>
         </section>
+        {showRegister ? (
+          <div className="modal-overlay" onClick={() => setShowRegister(false)}>
+            <div className="modal" onClick={(event) => event.stopPropagation()}>
+              <div className="modal__header">
+                <div>
+                  <h2>Register a Business</h2>
+                  <p>Only KUYA Eagle Members can register. Listings publish instantly.</p>
+                </div>
+                <div className="modal__actions">
+                  <span className="pill">Eagle Member</span>
+                  <button
+                    type="button"
+                    className="btn ghost small"
+                    onClick={() => setShowRegister(false)}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+              <div className="admin-bar">
+                <div>
+                  <strong>Admin:</strong>{" "}
+              {user?.email ? <span>{user.email}</span> : <span>Not signed in</span>}
+              {!adminEmailList.length ? (
+                <span className="admin-note">Set `NEXT_PUBLIC_ADMIN_EMAILS`.</span>
+              ) : null}
+            </div>
+            {user ? (
+              <button type="button" className="btn ghost" onClick={handleAdminSignOut}>
+                Sign out
+              </button>
+            ) : (
+              <div className="admin-login">
+                <input
+                  type="email"
+                  placeholder="Admin email"
+                  value={adminEmail}
+                  onChange={(event) => setAdminEmail(event.target.value)}
+                />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={adminPassword}
+                  onChange={(event) => setAdminPassword(event.target.value)}
+                />
+                <button type="button" className="btn ghost" onClick={handleEmailSignIn}>
+                  Admin sign in
+                </button>
+              </div>
+            )}
+              </div>
+              <form className="form" onSubmit={handleSubmit}>
+                <div className="form__row">
+                  <label>
+                    Business Name
+                <input
+                  name="name"
+                  type="text"
+                  placeholder="Maharlika Seaside Resort"
+                  required
+                />
+              </label>
+              <label>
+                Owner (KUYA Member)
+                <input name="owner" type="text" placeholder="Juan Dela Cruz" required />
+              </label>
+            </div>
+            <div className="form__row">
+              <label>
+                Category
+                <select name="category" required>
+                  <option value="">Select a category</option>
+                  {categoryOptions.map((category) => (
+                    <option key={category.key} value={category.label}>
+                      {category.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                If other, specify
+                <input name="customCategory" type="text" placeholder="Event Services" />
+              </label>
+            </div>
+            <div className="form__row">
+              <label>
+                Complete Address
+                <input
+                  name="location"
+                  type="text"
+                  placeholder="Brgy. Zabali, Baler, Aurora"
+                  required
+                />
+              </label>
+              <label>
+                Contact Person
+                <input name="contact" type="text" placeholder="Maria Santos" required />
+              </label>
+            </div>
+            <div className="form__row">
+              <label>
+                Phone
+                <input name="phone" type="tel" placeholder="+63 9xx xxx xxxx" required />
+              </label>
+              <label>
+                Email
+                <input name="email" type="email" placeholder="hello@business.com" />
+              </label>
+                </div>
+                <div className="form__row">
+                  <label>
+                    Website / Social Link
+                    <input name="website" type="url" placeholder="https://" />
+                  </label>
+                  <label>
+                    Operating Hours
+                    <input name="hours" type="text" placeholder="Daily 9:00 AM - 8:00 PM" />
+                  </label>
+                </div>
+                <div className="form__actions">
+                  <button type="submit" className="btn primary" disabled={submitting}>
+                    {submitting ? "Saving..." : "Add to Directory"}
+                  </button>
+                  <button type="reset" className="btn ghost" disabled={submitting}>
+                    Clear Form
+                  </button>
+                </div>
+                {errorMessage ? <div className="empty">{errorMessage}</div> : null}
+                {successMessage ? (
+                  <div className="success">{successMessage}</div>
+                ) : null}
+              </form>
+            </div>
+          </div>
+        ) : null}
+        {editingBusiness ? (
+          <div className="modal-overlay" onClick={() => setEditingBusiness(null)}>
+            <div className="modal" onClick={(event) => event.stopPropagation()}>
+              <div className="modal__header">
+                <div>
+                  <h2>Update Business</h2>
+                  <p>Edit details for this listing.</p>
+                </div>
+                <div className="modal__actions">
+                  <span className="pill">Admin</span>
+                  <button
+                    type="button"
+                    className="btn ghost small"
+                    onClick={() => setEditingBusiness(null)}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+              <form className="form" onSubmit={handleUpdate}>
+                <div className="form__row">
+                  <label>
+                    Business Name
+                    <input
+                      name="name"
+                      type="text"
+                      defaultValue={editingBusiness.name || ""}
+                      required
+                    />
+                  </label>
+                  <label>
+                    Owner (KUYA Member)
+                    <input
+                      name="owner"
+                      type="text"
+                      defaultValue={editingBusiness.owner || ""}
+                      required
+                    />
+                  </label>
+                </div>
+                <div className="form__row">
+                  <label>
+                    Category
+                    <select
+                      name="category"
+                      defaultValue={normalizeCategory(editingBusiness.category || "")}
+                      required
+                    >
+                      <option value="">Select a category</option>
+                      {categoryOptions.map((category) => (
+                        <option key={category.key} value={category.label}>
+                          {category.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    If other, specify
+                    <input
+                      name="customCategory"
+                      type="text"
+                      placeholder="Event Services"
+                    />
+                  </label>
+                </div>
+                <div className="form__row">
+                  <label>
+                    Complete Address
+                    <input
+                      name="location"
+                      type="text"
+                      defaultValue={editingBusiness.location || ""}
+                      required
+                    />
+                  </label>
+                  <label>
+                    Contact Person
+                    <input
+                      name="contact"
+                      type="text"
+                      defaultValue={editingBusiness.contact || ""}
+                      required
+                    />
+                  </label>
+                </div>
+                <div className="form__row">
+                  <label>
+                    Phone
+                    <input
+                      name="phone"
+                      type="tel"
+                      defaultValue={editingBusiness.phone || ""}
+                      required
+                    />
+                  </label>
+                  <label>
+                    Email
+                    <input
+                      name="email"
+                      type="email"
+                      defaultValue={editingBusiness.email || ""}
+                    />
+                  </label>
+                </div>
+                <div className="form__row">
+                  <label>
+                    Website / Social Link
+                    <input
+                      name="website"
+                      type="url"
+                      defaultValue={editingBusiness.website || ""}
+                    />
+                  </label>
+                  <label>
+                    Operating Hours
+                    <input
+                      name="hours"
+                      type="text"
+                      defaultValue={editingBusiness.hours || ""}
+                    />
+                  </label>
+                </div>
+                <div className="form__actions">
+                  <button type="submit" className="btn primary" disabled={submitting}>
+                    {submitting ? "Saving..." : "Update Listing"}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn ghost"
+                    onClick={() => setEditingBusiness(null)}
+                    disabled={submitting}
+                  >
+                    Cancel
+                  </button>
+                </div>
+                {errorMessage ? <div className="empty">{errorMessage}</div> : null}
+                {successMessage ? (
+                  <div className="success">{successMessage}</div>
+                ) : null}
+              </form>
+            </div>
+          </div>
+        ) : null}
       </main>
 
     </div>

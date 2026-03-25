@@ -1,19 +1,38 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
   const videoRef = useRef(null);
+  const heroVideoRef = useRef(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 900px)");
+    const handleChange = () => {
+      setIsMobile(media.matches);
+      if (videoRef.current) videoRef.current.muted = true;
+      if (heroVideoRef.current) heroVideoRef.current.muted = true;
+      setSoundEnabled(false);
+    };
+    handleChange();
+    if (media.addEventListener) {
+      media.addEventListener("change", handleChange);
+      return () => media.removeEventListener("change", handleChange);
+    }
+    media.addListener(handleChange);
+    return () => media.removeListener(handleChange);
+  }, []);
 
   const handleToggleSound = () => {
-    const video = videoRef.current;
-    if (!video) return;
     const nextEnabled = !soundEnabled;
-    video.muted = !nextEnabled;
+    const target = isMobile ? heroVideoRef.current : videoRef.current;
+    if (!target) return;
+    target.muted = !nextEnabled;
     if (nextEnabled) {
-      video.volume = 1;
-      video.play().catch(() => undefined);
+      target.volume = 1;
+      target.play().catch(() => undefined);
     }
     setSoundEnabled(nextEnabled);
   };
@@ -51,6 +70,30 @@ export default function Home() {
               <a className="btn ghost" href="#events">
                 View all events
               </a>
+            </div>
+          </div>
+          <div className="club-hero__panel club-hero__panel--mobile">
+            <div className="club-hero__panel-title">Featured Video</div>
+            <div className="club-hero__panel-body">
+              <video
+                className="club-hero__video"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                poster="/eagle-logo.png"
+                ref={heroVideoRef}
+              >
+                <source src="/club-video.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              <div className="club-hero__video-controls">
+                <button className="btn primary club-hero__sound-toggle" type="button" onClick={handleToggleSound}>
+                  {soundEnabled ? "Mute Video" : "Enable Sound"}
+                </button>
+                <span>Sound requires a tap to comply with browser autoplay rules.</span>
+              </div>
             </div>
           </div>
         </div>
