@@ -16,9 +16,9 @@ const manrope = Manrope({
 });
 
 export const metadata = {
-  title: "Aurora Maharlikan Eagles Club | Eastern Luzon Region 5",
+  title: "Aurora Maharlikans | Eastern Luzon Region 5",
   description:
-    "Official website of the Aurora Maharlikan Eagles Club, Eastern Luzon Region 5. Service through strong brotherhood.",
+    "Official website of the Aurora Maharlikans, Eastern Luzon Region 5. Service through strong brotherhood.",
   icons: {
     icon: "/eagle-logo.png",
     shortcut: "/eagle-logo.png",
@@ -43,7 +43,7 @@ export default function RootLayout({ children }) {
                 className="site-footer__logo"
               />
               <div>
-                <div className="site-footer__title">Aurora Maharlikan Eagles Club</div>
+                <div className="site-footer__title">Aurora Maharlikans</div>
                 <div className="site-footer__subtitle">
                   Eastern Luzon Region 5 - Mabuhay Ang May Pusong AGILA!
                 </div>

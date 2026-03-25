@@ -309,6 +309,20 @@ textarea {
   font-size: 1.6rem;
 }
 
+@media (max-width: 600px) {
+  .hero__stats {
+    display: none;
+  }
+
+  .hero__logo {
+    display: none;
+  }
+
+  .badge {
+    display: none;
+  }
+}
+
 .hero__panel {
   background: var(--white);
   border-radius: var(--radius);
@@ -332,6 +346,13 @@ textarea {
 
 .panel__list + .btn {
   margin-top: 16px;
+}
+
+@media (max-width: 600px) {
+  .hero__panel .btn.primary {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 .card {
@@ -551,6 +572,13 @@ textarea:focus {
 @media (max-width: 700px) {
   .directory__search {
     width: 100%;
+  }
+
+  .directory__search input,
+  .directory__search select,
+  .directory__search button {
+    width: 100%;
+    max-width: 100%;
   }
 
   .modal {

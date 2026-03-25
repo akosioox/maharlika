@@ -20,7 +20,7 @@ export default function ClientNav() {
             priority
           />
           <div>
-            <span className="site-nav__title">Aurora Maharlikan Eagles Club</span>
+            <span className="site-nav__title">Aurora Maharlikans</span>
             <span className="site-nav__subtitle">Eastern Luzon Region 5</span>
           </div>
         </Link>

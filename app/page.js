@@ -45,7 +45,7 @@ export default function Home() {
             <span className="club-eyebrow">Service Through Strong Brotherhood</span>
             <h1>Building Aurora Through Service, Leadership, and Unity</h1>
             <p>
-              The Aurora Maharlikan Eagles Club is a fraternal socio-civic organization
+              The Aurora Maharlikans is a fraternal socio-civic organization
               advancing community projects, mentoring leaders, and empowering
               Maharlikan entrepreneurs across Eastern Luzon Region 5.
             </p>

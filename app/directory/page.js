@@ -488,7 +488,7 @@ export default function Home() {
               <div className="modal__header">
                 <div>
                   <h2>Register a Business</h2>
-                  <p>Only KUYA Eagle Members can register. Listings publish instantly.</p>
+                  <p>Only Eagle Members can register. Listings publish instantly.</p>
                 </div>
                 <div className="modal__actions">
                   <span className="pill">Eagle Member</span>
@@ -513,7 +513,7 @@ export default function Home() {
                 />
               </label>
               <label>
-                Owner (KUYA Member)
+                Owner (Eagle Member)
                 <input name="owner" type="text" placeholder="Juan Dela Cruz" required />
               </label>
             </div>
@@ -616,7 +616,7 @@ export default function Home() {
                     />
                   </label>
                   <label>
-                    Owner (KUYA Member)
+                    Owner (Eagle Member)
                     <input
                       name="owner"
                       type="text"
