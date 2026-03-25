@@ -36,6 +36,16 @@ const defaultCategories = [
 ];
 
 const normalizeCategory = (value) => value.trim().replace(/\s+/g, " ");
+const toTitleCase = (value) =>
+  normalizeCategory(String(value || ""))
+    .split(" ")
+    .map((word) => {
+      if (!word) return "";
+      if (word.length > 1 && word === word.toUpperCase()) return word;
+      if (/\d/.test(word)) return word;
+      return word[0].toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(" ");
 const categoryKey = (value) => normalizeCategory(String(value || "")).toLowerCase();
 const canonicalCategory = (value) => {
   const key = categoryKey(value);
@@ -189,7 +199,7 @@ export default function Home() {
     }
 
     const formData = new FormData(event.currentTarget);
-    const category = normalizeCategory(
+    const category = toTitleCase(
       String(formData.get("customCategory") || formData.get("category") || "")
     );
 
@@ -200,11 +210,11 @@ export default function Home() {
     setSubmitting(true);
     try {
       const newBusiness = {
-        name: value("name"),
-        owner: value("owner"),
+        name: toTitleCase(value("name")),
+        owner: toTitleCase(value("owner")),
         category,
-        location: value("location"),
-        contact: value("contact"),
+        location: toTitleCase(value("location")),
+        contact: toTitleCase(value("contact")),
         phone: value("phone"),
         email: value("email"),
         website: value("website"),
@@ -288,7 +298,7 @@ export default function Home() {
     if (!db || !editingBusiness || !isAdmin) return;
 
     const formData = new FormData(event.currentTarget);
-    const category = normalizeCategory(
+    const category = toTitleCase(
       String(formData.get("customCategory") || formData.get("category") || "")
     );
 
@@ -299,11 +309,11 @@ export default function Home() {
     setSubmitting(true);
     try {
       await updateDoc(doc(db, "businesses", editingBusiness.id), {
-        name: value("name"),
-        owner: value("owner"),
+        name: toTitleCase(value("name")),
+        owner: toTitleCase(value("owner")),
         category,
-        location: value("location"),
-        contact: value("contact"),
+        location: toTitleCase(value("location")),
+        contact: toTitleCase(value("contact")),
         phone: value("phone"),
         email: value("email"),
         website: value("website"),

@@ -321,6 +321,20 @@ textarea {
   .badge {
     display: none;
   }
+
+  .hero__content h1,
+  .hero__content p {
+    display: none;
+  }
+
+  .directory__controls h2,
+  .directory__controls p {
+    display: none;
+  }
+
+  .hero__content {
+    display: none;
+  }
 }
 
 .hero__panel {
