@@ -505,9 +505,6 @@ export default function Home() {
                 <div>
                   <strong>Admin:</strong>{" "}
               {user?.email ? <span>{user.email}</span> : <span>Not signed in</span>}
-              {!adminEmailList.length ? (
-                <span className="admin-note">Set `NEXT_PUBLIC_ADMIN_EMAILS`.</span>
-              ) : null}
             </div>
             {user ? (
               <button type="button" className="btn ghost" onClick={handleAdminSignOut}>
