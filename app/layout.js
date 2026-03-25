@@ -1,13 +1,7 @@
 import "./globals.css";
 import Image from "next/image";
-import { Fraunces, Manrope } from "next/font/google";
+import { Manrope } from "next/font/google";
 import ClientNav from "./components/ClientNav";
-
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-fraunces",
-});
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -28,7 +22,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${manrope.variable}`}>
+    <html lang="en" className={manrope.variable}>
       <body>
         <ClientNav />
         <main className="site-main">{children}</main>

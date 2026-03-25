@@ -58,19 +58,8 @@ export default function Home() {
               </a>
             </div>
           </div>
-          <div className="club-hero__panel">
-            <div className="club-hero__panel-title">Upcoming Highlight</div>
-            <div className="club-hero__panel-body">
-              <strong>2026 Aurora Eagles Regional Assembly</strong>
-              <span>Baler, Aurora - Date to be announced</span>
-              <p>
-                A gathering of leaders and members to align community impact initiatives,
-                recognize outstanding members, and strengthen regional partnerships.
-              </p>
-              <a className="btn ghost" href="#events">
-                View all events
-              </a>
-            </div>
+          <div className="club-hero__logo-card" aria-hidden="true">
+            <img src="/upcoming-pill.png" alt="" />
           </div>
           <div className="club-hero__panel club-hero__panel--mobile">
             <div className="club-hero__panel-title">Featured Video</div>

@@ -32,9 +32,13 @@ body {
 h1,
 h2,
 h3 {
-  font-family: var(--font-fraunces), "Georgia", serif;
-  letter-spacing: -0.5px;
+  font-family: var(--font-manrope), "Trebuchet MS", sans-serif;
+  letter-spacing: -0.2px;
   margin: 0 0 0.6rem 0;
+}
+
+h1 {
+  font-size: 2.2rem;
 }
 
 p {
@@ -60,8 +64,10 @@ textarea {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: #ffffff;
+  background: rgba(246, 239, 229, 0.92);
   border-bottom: 1px solid rgba(18, 20, 22, 0.12);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 24px rgba(30, 31, 27, 0.08);
 }
 
 .site-nav__inner {
@@ -168,7 +174,7 @@ textarea {
 
 .site-footer {
   border-top: 1px solid rgba(18, 20, 22, 0.12);
-  background: #ffffff;
+  background: transparent;
   margin-top: 40px;
 }
 
@@ -253,7 +259,7 @@ textarea {
 }
 
 .hero__content h1 {
-  font-size: clamp(2.4rem, 4vw, 3.4rem);
+  font-size: clamp(2rem, 3.2vw, 3rem);
   position: relative;
   z-index: 1;
 }
@@ -273,6 +279,13 @@ textarea {
   margin-bottom: 16px;
   position: relative;
   z-index: 1;
+}
+
+@media (min-width: 901px) {
+  .hero__brand {
+    display: none;
+    margin-bottom: 0;
+  }
 }
 
 .badge {
@@ -904,7 +917,7 @@ textarea:focus {
 }
 
 .club-hero h1 {
-  font-size: clamp(2.2rem, 4vw, 3.1rem);
+  font-size: clamp(1.9rem, 3.4vw, 2.8rem);
   margin-bottom: 12px;
 }
 
@@ -973,6 +986,19 @@ textarea:focus {
   display: grid;
   gap: 8px;
   color: var(--slate);
+}
+
+.club-hero__logo-card {
+  display: grid;
+  place-items: center;
+  padding: 10px;
+}
+
+.club-hero__logo-card img {
+  width: min(280px, 60vw);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 24px rgba(30, 31, 27, 0.22));
 }
 
 .club-hero__video-controls {
@@ -1071,7 +1097,11 @@ textarea:focus {
 }
 
 .club-section__header {
-  max-width: 640px;
+  max-width: 100%;
+}
+
+.club-section__header p {
+  max-width: 100%;
 }
 
 .club-pillars {
@@ -1275,7 +1305,7 @@ textarea:focus {
 
 .nest-hero h1 {
   margin-top: 8px;
-  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  font-size: clamp(1.9rem, 3.4vw, 2.9rem);
 }
 
 .nest-hero p {
