@@ -1276,6 +1276,21 @@ textarea:focus {
     object-fit: contain;
     flex: 0 0 auto;
   }
+
+  .club-cta__actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .club-cta__actions .btn {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    text-align: center;
+    white-space: nowrap;
+  }
 }
 
 @media (max-width: 700px) {
