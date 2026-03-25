@@ -501,35 +501,6 @@ export default function Home() {
                   </button>
                 </div>
               </div>
-              <div className="admin-bar">
-                <div>
-                  <strong>Admin:</strong>{" "}
-              {user?.email ? <span>{user.email}</span> : <span>Not signed in</span>}
-            </div>
-            {user ? (
-              <button type="button" className="btn ghost" onClick={handleAdminSignOut}>
-                Sign out
-              </button>
-            ) : (
-              <div className="admin-login">
-                <input
-                  type="email"
-                  placeholder="Admin email"
-                  value={adminEmail}
-                  onChange={(event) => setAdminEmail(event.target.value)}
-                />
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={adminPassword}
-                  onChange={(event) => setAdminPassword(event.target.value)}
-                />
-                <button type="button" className="btn ghost" onClick={handleEmailSignIn}>
-                  Admin sign in
-                </button>
-              </div>
-            )}
-              </div>
               <form className="form" onSubmit={handleSubmit}>
                 <div className="form__row">
                   <label>
