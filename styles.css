@@ -6,7 +6,7 @@
   --gold: #d1a758;
   --sand: #f4efe7;
   --cloud: #f7f5f0;
-  --panel: #ffffff;
+  --panel: #f6efe5;
   --border: rgba(18, 20, 22, 0.12);
   --shadow-lg: 0 30px 60px rgba(18, 20, 22, 0.15);
   --shadow-md: 0 18px 36px rgba(18, 20, 22, 0.12);
@@ -22,7 +22,7 @@ body {
   margin: 0;
   font-family: "Manrope", "Trebuchet MS", sans-serif;
   color: var(--ink);
-  background: radial-gradient(circle at 20% 0%, #ffffff 0%, #f8f2e8 40%, #eef3f2 100%);
+  background: #ffffff;
   min-height: 100vh;
 }
 
@@ -68,13 +68,13 @@ p {
   gap: 18px;
   padding: 16px 20px;
   border-radius: 18px;
-  background: rgba(246, 239, 229, 0.92);
+  background: #ffffff;
   border: 1px solid rgba(28, 124, 116, 0.15);
   box-shadow: var(--shadow-md);
   position: sticky;
   top: 0;
   z-index: 10;
-  backdrop-filter: blur(10px);
+  backdrop-filter: none;
 }
 
 .brand {
